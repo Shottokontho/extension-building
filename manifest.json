@@ -1,0 +1,24 @@
+
+{
+  "manifest_version": 3,
+  "name": "VisionSave Pro",
+  "version": "1.0.0",
+  "description": "Auto-download images as JPG by hovering for 1 second with a sleek green glow.",
+  "permissions": [
+    "storage",
+    "downloads",
+    "activeTab"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 300px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 15px; background: #f3f4f6; margin: 0; }
+    .card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .logo { width: 40px; height: 40px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 4px 12px rgba(34,197,94,0.3); }
+    .user-info { flex: 1; }
+    .username { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 2px; }
+    .status-badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .status-free { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+    .status-premium { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .progress-section { margin: 20px 0; background: #f9fafb; padding: 12px; border-radius: 12px; border: 1px solid #f3f4f6; }
+    .label { font-size: 12px; color: #4b5563; font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .count-text { color: #111827; font-weight: 700; }
+    .progress-bar { height: 10px; background: #e5e7eb; border-radius: 5px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%); width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    .btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; font-size: 14px; transition: all 0.2s; }
+    .btn-upgrade { background: #111827; color: white; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .btn-upgrade:hover { background: #1f2937; transform: translateY(-1px); }
+    .btn-premium { background: #22c55e; color: white; }
+    .footer { font-size: 10px; text-align: center; color: #9ca3af; margin-top: 15px; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="logo">V</div>
+      <div class="user-info">
+        <div class="username" id="username">Loading...</div>
+        <span class="status-badge" id="statusBadge">Checking...</span>
+      </div>
+    </div>
+    
+    <div class="progress-section">
+      <div class="label">
+        <span>Images Downloaded</span>
+        <span class="count-text" id="usageText">0 / 10</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <a href="https://your-netlify-app-link.netlify.app/#/simulator" target="_blank" class="btn btn-upgrade" id="actionBtn">Upgrade to Premium</a>
+    <div class="footer">VisionSave Pro v1.1.0 • Pinterest Supported</div>
+  </div>
+
+  <script>
+    function updateUI() {
+      chrome.storage.local.get(['user'], (data) => {
+        if (data.user) {
+          const user = data.user;
+          document.getElementById('username').textContent = user.username;
+          const badge = document.getElementById('statusBadge');
+          badge.textContent = user.status;
+          badge.className = 'status-badge ' + (user.status === 'PREMIUM' ? 'status-premium' : 'status-free');
+          
+          const count = user.downloadsToday || 0;
+          const limit = 10;
+          
+          if (user.status === 'PREMIUM') {
+            document.getElementById('usageText').textContent = `Unlimited`;
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('actionBtn').textContent = 'Premium Dashboard';
+            document.getElementById('actionBtn').classList.add('btn-premium');
+          } else {
+            document.getElementById('usageText').textContent = `${count} / ${limit}`;
+            const percentage = Math.min((count / limit) * 100, 100);
+            document.getElementById('progressFill').style.width = percentage + '%';
+            
+            if (count >= limit) {
+               document.getElementById('progressFill').style.background = '#ef4444';
+            }
+          }
+        }
+      });
+    }
+
+    // Initial load
+    updateUI();
+    
+    // Listen for storage changes to update UI in real-time
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes.user) {
+        updateUI();
+      }
+    });
+  </script>
+</body>
+</html>
