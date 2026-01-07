@@ -46,47 +46,6 @@
     <a href="https://your-netlify-app-link.netlify.app/#/simulator" target="_blank" class="btn btn-upgrade" id="actionBtn">Upgrade to Premium</a>
     <div class="footer">VisionSave Pro v1.1.0 • Pinterest Supported</div>
   </div>
-
-  <script>
-    function updateUI() {
-      chrome.storage.local.get(['user'], (data) => {
-        if (data.user) {
-          const user = data.user;
-          document.getElementById('username').textContent = user.username;
-          const badge = document.getElementById('statusBadge');
-          badge.textContent = user.status;
-          badge.className = 'status-badge ' + (user.status === 'PREMIUM' ? 'status-premium' : 'status-free');
-          
-          const count = user.downloadsToday || 0;
-          const limit = 10;
-          
-          if (user.status === 'PREMIUM') {
-            document.getElementById('usageText').textContent = `Unlimited`;
-            document.getElementById('progressFill').style.width = '100%';
-            document.getElementById('actionBtn').textContent = 'Premium Dashboard';
-            document.getElementById('actionBtn').classList.add('btn-premium');
-          } else {
-            document.getElementById('usageText').textContent = `${count} / ${limit}`;
-            const percentage = Math.min((count / limit) * 100, 100);
-            document.getElementById('progressFill').style.width = percentage + '%';
-            
-            if (count >= limit) {
-               document.getElementById('progressFill').style.background = '#ef4444';
-            }
-          }
-        }
-      });
-    }
-
-    // Initial load
-    updateUI();
-    
-    // Listen for storage changes to update UI in real-time
-    chrome.storage.onChanged.addListener((changes) => {
-      if (changes.user) {
-        updateUI();
-      }
-    });
-  </script>
+  <script src="popup.js"></script>
 </body>
 </html>

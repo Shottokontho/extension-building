@@ -15,22 +15,50 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-function findImageUrl(el) {
-  // Direct image
-  if (el.tagName === 'IMG') return el.src;
-  
-  // Pinterest specific: Often images are inside a div with a specific structure
-  // or the hovered element is an overlay div
-  const nestedImg = el.querySelector('img');
-  if (nestedImg) return nestedImg.src;
+function getHighResUrl(url) {
+  if (!url) return null;
 
-  // Check background image
-  const bg = window.getComputedStyle(el).backgroundImage;
-  if (bg && bg.startsWith('url(')) {
-    return bg.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
+  // Unsplash high res extraction
+  if (url.includes('unsplash.com')) {
+    const urlObj = new URL(url);
+    urlObj.searchParams.delete('w');
+    urlObj.searchParams.delete('h');
+    urlObj.searchParams.delete('crop');
+    urlObj.searchParams.set('q', '100'); // Max quality
+    return urlObj.toString();
   }
 
-  return null;
+  // Google Images / GStatic high res
+  if (url.includes('gstatic.com') || url.includes('google.com/imgres')) {
+    // Attempting to extract from data-src or source
+    return url;
+  }
+
+  // Pinterest originals
+  if (url.includes('pinimg.com')) {
+    return url.replace(/\/(236x|474x|564x|736x)\//, '/originals/');
+  }
+
+  return url;
+}
+
+function findImageUrl(el) {
+  let url = null;
+  if (el.tagName === 'IMG') {
+    url = el.src;
+  } else {
+    const nestedImg = el.querySelector('img');
+    if (nestedImg) url = nestedImg.src;
+  }
+
+  if (!url) {
+    const bg = window.getComputedStyle(el).backgroundImage;
+    if (bg && bg.startsWith('url(')) {
+      url = bg.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
+    }
+  }
+
+  return getHighResUrl(url);
 }
 
 document.addEventListener('mouseover', (e) => {
@@ -38,12 +66,9 @@ document.addEventListener('mouseover', (e) => {
   const url = findImageUrl(el);
   
   if (url) {
-    // Basic filter
-    const isLogo = url.toLowerCase().includes('logo') || el.className.toLowerCase().includes('logo');
+    const isLogo = url.toLowerCase().includes('logo') || el.className.toLowerCase().includes('logo') || el.id.toLowerCase().includes('logo');
     if (isLogo) return;
 
-    // Pinterest images often have '736x' or 'originals' in the URL for high res
-    // We try to trigger on the container or the image itself
     const targetToGlow = el.tagName === 'IMG' ? el : (el.querySelector('img') || el);
 
     hoverTimer = setTimeout(() => {
@@ -57,7 +82,6 @@ document.addEventListener('mouseover', (e) => {
           alert('VisionSave: Daily free limit (10) reached. Upgrade to Premium for unlimited downloads!');
         } else if (response && response.status === 'COOLDOWN') {
           targetToGlow.classList.remove(GLOW_CLASS);
-          console.log('VisionSave: Waiting 2 seconds between downloads...');
         } else {
           setTimeout(() => targetToGlow.classList.remove(GLOW_CLASS), 1500);
         }
