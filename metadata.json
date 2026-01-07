@@ -1,0 +1,5 @@
+{
+  "name": "VisionSave Admin & Extension Hub",
+  "description": "A comprehensive dashboard for managing the VisionSave Chrome Extension, including user management, manual payment verification for bKash/Nagad, and premium feature controls.",
+  "requestFramePermissions": []
+}
