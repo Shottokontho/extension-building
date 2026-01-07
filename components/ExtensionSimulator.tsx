@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { User, UserStatus, PaymentRequest } from '../types';
+import { User, UserStatus, PaymentRequest } from '../types.ts';
 
 interface ExtensionSimulatorProps {
   user: User | null;
@@ -9,7 +9,6 @@ interface ExtensionSimulatorProps {
 
 const ExtensionSimulator: React.FC<ExtensionSimulatorProps> = ({ user, setUser }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  // Using ReturnType<typeof setTimeout> instead of NodeJS.Timeout to fix the namespace error in browser environment
   const [hoverTimer, setHoverTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null);
   const [showPayModal, setShowPayModal] = useState(false);
@@ -17,19 +16,17 @@ const ExtensionSimulator: React.FC<ExtensionSimulatorProps> = ({ user, setUser }
   const [payMethod, setPayMethod] = useState<'bKash' | 'Nagad'>('bKash');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Sample images for the demo
   const sampleImages = [
     { src: 'https://picsum.photos/800/600?random=1', label: 'Landscape' },
     { src: 'https://picsum.photos/600/800?random=2', label: 'Portrait' },
     { src: 'https://picsum.photos/800/800?random=3', label: 'Square' },
-    { src: 'https://cdn-icons-png.flaticon.com/512/2111/2111463.png', label: 'Logo (Filtered)', isLogo: true }, // Filtered out
+    { src: 'https://cdn-icons-png.flaticon.com/512/2111/2111463.png', label: 'Logo (Filtered)', isLogo: true },
     { src: 'https://picsum.photos/800/600?random=4', label: 'Street Art' },
     { src: 'https://picsum.photos/800/600?random=5', label: 'Abstract' },
   ];
 
   const handleMouseEnter = (index: number, isLogo?: boolean) => {
-    if (isLogo) return; // Skip logos/icons
-    
+    if (isLogo) return;
     setHoveredIndex(index);
     const timer = setTimeout(() => {
       initiateDownload(index);
@@ -45,15 +42,12 @@ const ExtensionSimulator: React.FC<ExtensionSimulatorProps> = ({ user, setUser }
 
   const initiateDownload = (index: number) => {
     if (!user) return;
-
-    // Check limit
     if (user.status === UserStatus.FREE && user.downloadsToday >= 10) {
       setShowPayModal(true);
       return;
     }
 
     setDownloadingIndex(index);
-    // Simulate JPG conversion and download
     setTimeout(() => {
       const link = document.createElement('a');
       link.href = sampleImages[index].src;
@@ -61,17 +55,14 @@ const ExtensionSimulator: React.FC<ExtensionSimulatorProps> = ({ user, setUser }
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
       setDownloadingIndex(null);
 
-      // Update user state
       const updatedUser = { 
         ...user, 
         downloadsToday: user.downloadsToday + 1 
       };
       localStorage.setItem('visionsave_user', JSON.stringify(updatedUser));
       setUser(updatedUser);
-      
       alert('Downloaded successfully as JPG!');
     }, 1500);
   };
@@ -93,13 +84,11 @@ const ExtensionSimulator: React.FC<ExtensionSimulatorProps> = ({ user, setUser }
       status: 'PENDING'
     };
 
-    // Store in "DB"
     const current = localStorage.getItem('visionsave_payments');
     const requests = current ? JSON.parse(current) : [];
     requests.push(newRequest);
     localStorage.setItem('visionsave_payments', JSON.stringify(requests));
 
-    // Update user status to PENDING
     if (user) {
       const updatedUser = { ...user, status: UserStatus.PENDING };
       localStorage.setItem('visionsave_user', JSON.stringify(updatedUser));
@@ -149,12 +138,10 @@ const ExtensionSimulator: React.FC<ExtensionSimulatorProps> = ({ user, setUser }
               alt={img.label}
               className={`w-full h-full object-cover transition-all duration-700 ${hoveredIndex === idx ? 'scale-105 blur-sm' : ''}`}
             />
-            {/* Hover Glow Effect */}
             {hoveredIndex === idx && (
               <div className="absolute inset-0 border-4 border-green-500 shadow-[0_0_50px_rgba(34,197,94,0.6)] animate-pulse pointer-events-none rounded-2xl z-10"></div>
             )}
             
-            {/* Loading Overlay */}
             {downloadingIndex === idx && (
               <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-20">
                 <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-2"></div>
@@ -169,7 +156,6 @@ const ExtensionSimulator: React.FC<ExtensionSimulatorProps> = ({ user, setUser }
         ))}
       </div>
 
-      {/* Payment Modal */}
       {showPayModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl">

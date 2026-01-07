@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { PaymentRequest, UserStatus } from '../types';
-import { formatDate } from '../utils/helpers';
+import { PaymentRequest, UserStatus } from '../types.ts';
+import { formatDate } from '../utils/helpers.ts';
 
 const AdminDashboard: React.FC = () => {
   const [requests, setRequests] = useState<PaymentRequest[]>([]);
@@ -30,7 +30,6 @@ const AdminDashboard: React.FC = () => {
   const handleAction = (id: string, action: 'APPROVED' | 'REJECTED') => {
     const updated = requests.map(req => {
       if (req.id === id) {
-        // If approved, update the simulation user status if applicable
         if (action === 'APPROVED') {
           const userStr = localStorage.getItem('visionsave_user');
           if (userStr) {
@@ -47,7 +46,6 @@ const AdminDashboard: React.FC = () => {
     });
     setRequests(updated);
     localStorage.setItem('visionsave_payments', JSON.stringify(updated));
-    // Dispatch storage event manually for same-tab updates
     window.dispatchEvent(new Event('storage'));
   };
 

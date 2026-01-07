@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import AdminDashboard from './components/AdminDashboard';
-import ExtensionSimulator from './components/ExtensionSimulator';
-import { User, UserStatus } from './types';
-import { generateRandomUsername } from './utils/helpers';
+import AdminDashboard from './components/AdminDashboard.tsx';
+import ExtensionSimulator from './components/ExtensionSimulator.tsx';
+import { User, UserStatus } from './types.ts';
+import { generateRandomUsername } from './utils/helpers.ts';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
